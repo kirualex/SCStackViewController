@@ -21,7 +21,6 @@ typedef enum {
 - (void) stackviewDidScrollInScrollView:(UIScrollView *) scrollview;
 @end
 
-
 @interface SCStackViewController : UIViewController
 
 @property (nonatomic, strong) UIBezierPath *touchRefusalArea;
@@ -31,6 +30,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL fadeViewsArrival;
 @property (nonatomic, assign) BOOL allowScrollMultiplePages;
 
+- (UIScrollView *) scrollview;
 
 - (instancetype)initWithRootViewController:(UIViewController *)rootViewController;
 

@@ -52,13 +52,16 @@ static const CGFloat kDefaultAnimationDuration = 0.25f;
 @property (nonatomic, strong) NSMutableDictionary *finalFrames;
 
 @property (nonatomic, strong) NSMutableArray *visibleViewControllers;
-@property (nonatomic) int currentPageX;
-@property (nonatomic) int currentPageY;
+
 @end
 
 @implementation SCStackViewController
 @dynamic bounces;
 @dynamic touchRefusalArea;
+
+- (UIScrollView *) scrollview{
+    return self.scrollView;
+}
 
 #pragma mark - Constructors
 
@@ -228,10 +231,6 @@ static const CGFloat kDefaultAnimationDuration = 0.25f;
                      animations:^{
                          [self.scrollView setContentOffset:offset animated:animated];
                      } completion:^(BOOL finished) {
-                         float pageWidth = self.rootViewController.view.frame.size.width;
-                         float pageHeight = self.rootViewController.view.frame.size.height;
-                         _currentPageX =  (int)roundf(offset.x/pageWidth);
-                         _currentPageY =  (int)roundf(offset.y/pageHeight);
                          if(completion) {
                              completion(finished);
                          }
@@ -412,54 +411,6 @@ int lastIndex = 0;
         }];
     }
 }
-
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
-{
-    
-    CGFloat pageWidth = self.scrollView.frame.size.width;
-    CGFloat pageHeight= self.scrollView.frame.size.height;
-    int newPageX = _currentPageX;
-    int newPageY = _currentPageY;
-    
-    // Horizontal paging
-    if(targetContentOffset->x != 0){
-        
-        if(self.allowScrollMultiplePages){
-            _currentPageX =  (int)roundf(self.scrollView.contentOffset.x/pageWidth);
-        }
-        
-        if(velocity.x > 0 && _currentPageX != [self.viewControllers[@(SCStackViewControllerPositionRight)] count]){
-            newPageX = _currentPageX + 1;
-        }else if(velocity.x<0 && _currentPageX != -[self.viewControllers[@(SCStackViewControllerPositionLeft)] count]){
-            newPageX = _currentPageX - 1;
-        }else{
-            newPageX = floor((targetContentOffset->x - pageWidth / 2) / pageWidth) + 1;
-        }
-        
-        *targetContentOffset = CGPointMake(newPageX * pageWidth, targetContentOffset->y);
-        
-        // Vertical paging
-    }else if(targetContentOffset->y != 0){
-        
-        if(self.allowScrollMultiplePages){
-            _currentPageY =  (int)roundf(self.scrollView.contentOffset.y/pageHeight);
-        }
-        
-        if(velocity.y > 0 && _currentPageY != [self.viewControllers[@(SCStackViewControllerPositionTop)] count]){
-            newPageY = _currentPageY + 1;
-        }else if(velocity.y<0 && _currentPageY != -[self.viewControllers[@(SCStackViewControllerPositionBottom)] count]){
-            newPageY = _currentPageY - 1;
-        }else{
-            newPageY = floor((targetContentOffset->y - pageHeight / 2) / pageHeight) + 1;
-        }
-        
-        *targetContentOffset = CGPointMake(targetContentOffset->y, newPageY * pageHeight);
-    }
-    
-    _currentPageX = newPageX;
-    _currentPageY = newPageY;
-}
-
 
 
 #pragma mark - Rotation Handling
